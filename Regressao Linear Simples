@@ -1,0 +1,43 @@
+##################################
+# instalando pacotes
+install.packages("corrplot")
+install.packages("datarium")
+install.packages("esquisse")
+# carregando
+library(corrplot)
+library(datarium)
+library(esquisse)
+# carregamento de dados
+dados <- marketing
+# analise grafica
+esquisser(dados)
+## separacao dos dados em treino e teste
+# calcula tamanho da amostra de treino
+tamanho_treino <- 0.8 * nrow(dados)
+# semente aleatoria
+set.seed(123)
+# sorteio dos dados de treino
+treino_indices <- sample(1:nrow(dados), size = tamanho_treino)
+# separacao em treino e teste
+dados_treino <- dados[treino_indices,]
+dados_teste <- dados[-treino_indices,]
+# matriz de correlacoes
+matriz_correlacoes <- cor(dados)
+matriz_correlacoes
+# so para vendas
+matriz_correlacoes[,4]
+# mapa de calor
+corrplot(matriz_correlacoes, method = "number")
+# modelo de regressao
+modelo <- lm(data = dados_treino, formula = sales ~.)
+summary(modelo) ## se tiver variavel com mais de 0,05 de p, ja pd excluir
+modelo2 <- lm(data = dados_treino, formula = sales ~ youtube + facebook)
+summary(modelo2)
+### modelo final : vendas = 3,52 + 0,05*youtube + 0,19*facebook
+# acuracia do modelo
+install.packages("MLmetrics")
+library("MLmetrics")
+# predicoes na amostra de teste
+predicoes <- predict(modelo2, dados_teste[,1:3])
+# erro medio percentual absoluto
+MAPE(predicoes, dados_teste$sales)
